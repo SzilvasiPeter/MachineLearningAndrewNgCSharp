@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LinearRegression", "LinearRegression\LinearRegression.csproj", "{56A8AFBD-81CE-4039-832C-82FFA5D4842A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56A8AFBD-81CE-4039-832C-82FFA5D4842A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56A8AFBD-81CE-4039-832C-82FFA5D4842A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56A8AFBD-81CE-4039-832C-82FFA5D4842A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56A8AFBD-81CE-4039-832C-82FFA5D4842A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DEE9210A-0258-407E-8A66-F0937CFCD94A}
+	EndGlobalSection
+EndGlobal
