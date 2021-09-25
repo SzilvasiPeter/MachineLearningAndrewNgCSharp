@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Deedle" Version="2.4.3" />
+    <PackageReference Include="Deedle.Math" Version="2.4.3" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Html.Abstractions" Version="2.2.0" />
     <PackageReference Include="Pandas.NET" Version="0.2.0" />
