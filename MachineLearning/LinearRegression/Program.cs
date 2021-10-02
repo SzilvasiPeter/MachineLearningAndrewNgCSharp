@@ -26,6 +26,21 @@ namespace LinearRegression
             // Gradient descent
             int iterations = 1500;
             double learningRate = 0.01;
+            GradientDescent(X, y, thetaSeries, learningRate, iterations);
+        }
+
+        private static void GradientDescent(Matrix<double> X, Vector<double> y, Series<int, double> thetaSeries, double learningRate, int iterations)
+        {
+            int numberOfExamples = X.RowCount;
+            var CostHistory = Enumerable.Range(0, iterations).Select(i => KeyValue.Create(i, 0.0)).ToSeries();
+            for (int i = 0; i < iterations; i++)
+            {
+                // Update theta
+                // theta = theta - ((alpha/m) * sum(((X*theta)-y) .* X))';  
+
+                // Save cost history
+                // CostHistory(iter) = computeCost(X, y, theta);
+            }
         }
 
         public static (Matrix<double> X, Vector<double> y) PrepareInputData(string csvPath)
