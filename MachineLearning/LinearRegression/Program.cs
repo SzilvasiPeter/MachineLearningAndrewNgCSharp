@@ -20,27 +20,46 @@ namespace LinearRegression
 
             // ComputeCost
             var thetaSeries = new Series<int, double>(new int[2] { 0, 1 }, new double[2]);
-            double J = ComputeCost(X, y, thetaSeries);
-            Console.WriteLine(J);
+            double cost = ComputeCost(X, y, thetaSeries);
+            Console.WriteLine(cost);
 
             // Gradient descent
             int iterations = 1500;
             double learningRate = 0.01;
-            GradientDescent(X, y, thetaSeries, learningRate, iterations);
+            double[] costHistory = GradientDescent(X, y, ref thetaSeries, learningRate, iterations);
+            foreach (var aCost in costHistory)
+            {
+                Console.WriteLine(aCost);
+            }
+
+            Console.WriteLine(thetaSeries);
+
+            // Visualizing Data and regression line
         }
 
-        private static void GradientDescent(Matrix<double> X, Vector<double> y, Series<int, double> thetaSeries, double learningRate, int iterations)
+        private static double[] GradientDescent(Matrix<double> X, Vector<double> y, ref Series<int, double> thetaSeries, double learningRate, int iterations)
         {
             int numberOfExamples = X.RowCount;
-            var CostHistory = Enumerable.Range(0, iterations).Select(i => KeyValue.Create(i, 0.0)).ToSeries();
+            double[] costHistory = new double[iterations];
             for (int i = 0; i < iterations; i++)
             {
                 // Update theta
-                // theta = theta - ((alpha/m) * sum(((X*theta)-y) .* X))';  
+                // theta = theta - ((alpha/m) * sum(((X*theta)-y) .* X))';
+                var dotProduct = Deedle.Math.Matrix.dot(X, thetaSeries); // X*theta
+                var dotProductMinusY = (dotProduct - y).ToRowMatrix(); // (X*theta)-y
+                var dotProductMinusYMultiplyX = dotProductMinusY.Multiply(X); // ((X*theta)-y) .* X)
+                var dotProductMinusYMultiplyXSum = dotProductMinusYMultiplyX.ColumnSums(); // sum(((X*theta)-y) .* X))
+                var dotProductMinusYMultiplyXSumLr = dotProductMinusYMultiplyXSum.Multiply(learningRate / numberOfExamples); // (alpha/m) * sum(((X*theta)-y) .* X)
+
+                var thetaVector = Deedle.Math.Series.toVector(thetaSeries);
+                var newThetaVector = thetaVector - dotProductMinusYMultiplyXSumLr; // theta - ((alpha/m) * sum(((X*theta)-y) .* X))
+                thetaSeries = Deedle.Math.Series.ofVector(Enumerable.Range(0, dotProductMinusYMultiplyXSumLr.Count), newThetaVector);
 
                 // Save cost history
-                // CostHistory(iter) = computeCost(X, y, theta);
+                costHistory[i] = ComputeCost(X, y, thetaSeries);
             }
+
+            return costHistory;
         }
 
         public static (Matrix<double> X, Vector<double> y) PrepareInputData(string csvPath)
@@ -52,8 +71,8 @@ namespace LinearRegression
             Series<int, double> xSeries = frame.GetColumn<double>("X");
             Series<int, double> intercept = Enumerable.Range(0, xSeries.ValueCount).Select(i => KeyValue.Create(i, 1.0)).ToSeries();
             Frame<int, string> xFrame = Frame.CreateEmpty<int, string>();
-            xFrame.AddColumn("X", xSeries);
             xFrame.AddColumn("Intercept", intercept);
+            xFrame.AddColumn("X", xSeries);
             Matrix<double> X = Deedle.Math.Matrix.ofFrame(xFrame);
 
             // Preapare Y vector
@@ -65,11 +84,11 @@ namespace LinearRegression
 
         public static double ComputeCost(Matrix<double> X, Vector<double> y, Series<int, double> theta)
         {
-            // J = sum(((X*theta)-y).^2) * (1/(2*m))
+            // sum(((X*theta)-y).^2) * (1/(2*m))
             var dotproduct = Deedle.Math.Matrix.dot(X, theta); // X*theta
             var dotproductMinusY = dotproduct - y; // (X*theta) - y
             var dotproductMinusYPower2 = dotproductMinusY.PointwisePower(2); // ((X*theta)-y).^2
-            var dotproductMinusYPower2Sum = dotproductMinusYPower2.Sum(); // sum(((X*theta)-y).^2)
+            var dotproductMinusYPower2Sum = dotproductMinusYPower2.Sum(); // sum(((X*theta)-y).^2))
             var dotproductMinusYPower2SumDivided2M = dotproductMinusYPower2Sum * (1.0 / (2.0 * X.RowCount)); // sum(((X*theta)-y).^2)*(1/(2*m))
 
             return dotproductMinusYPower2SumDivided2M;
