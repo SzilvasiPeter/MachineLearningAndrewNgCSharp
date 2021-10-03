@@ -1,5 +1,5 @@
 ﻿using System;
-using XPlot.Plotly;
+using XPlot.Plotly; // Using OxyPlot WPF application instead of Plotly
 using System.Linq;
 using Deedle;
 using System.Collections.Generic;
@@ -29,12 +29,17 @@ namespace LinearRegression
             double[] costHistory = GradientDescent(X, y, ref thetaSeries, learningRate, iterations);
             foreach (var aCost in costHistory)
             {
-                Console.WriteLine(aCost);
+                //Console.WriteLine(aCost);
             }
 
-            Console.WriteLine(thetaSeries);
+            //Console.WriteLine(thetaSeries);
 
             // Visualizing Data and regression line
+            double[] xArray = X.Column(1).ToArray();
+            double[] yArray = y.ToArray();
+            double[] thetaArray = Deedle.Math.Series.toVector(thetaSeries).ToArray();
+
+            PlotSeries(xArray, yArray, thetaArray);
         }
 
         private static double[] GradientDescent(Matrix<double> X, Vector<double> y, ref Series<int, double> thetaSeries, double learningRate, int iterations)
@@ -94,16 +99,31 @@ namespace LinearRegression
             return dotproductMinusYPower2SumDivided2M;
         }
 
-        public static void PlotSeries(Series<int, double> x, Series<int, double> y)
+        public static void PlotSeries(double[] x, double[] y, double[] theta)
         {
-            var chart1 = Chart.Plot(
+            double yIntercept = theta[0];
+            double slope = theta[1];
+            var chart_list = new List<Scatter>
+            {
                 new Scatter
                 {
-                    x = x.Values,
-                    y = y.Values,
-                    mode = "markers"
-                });
-            var chart1_layout = new Layout.Layout
+                    x = x,
+                    y = y,
+                    mode = "markers",
+                    name = "Data points"
+                },
+                new Scatter
+                {
+                    // Draw a line in [3, 24] intervallum given theta parameters
+                    x = new double[] { 3, 24 },
+                    y = new double[] { 3 * slope + yIntercept,  24 * slope + yIntercept },
+                    mode= "lines",
+                    name = "Linear regression line"
+                }
+            };
+            var chart = Chart.Plot(chart_list);
+
+            var chart_layout = new Layout.Layout
             {
                 title = "Predict profit for a food truck",
                 xaxis = new Xaxis
@@ -115,8 +135,9 @@ namespace LinearRegression
                     title = "Profit in $10,000s"
                 }
             };
-            chart1.WithLayout(chart1_layout);
-            chart1.Show();
+
+            chart.WithLayout(chart_layout);
+            chart.Show();
         }
     }
 }
