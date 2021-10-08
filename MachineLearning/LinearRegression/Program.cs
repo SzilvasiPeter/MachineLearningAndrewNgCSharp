@@ -29,10 +29,18 @@ namespace LinearRegression
             double[] costHistory = GradientDescent(X, y, ref thetaSeries, learningRate, iterations);
             foreach (var aCost in costHistory)
             {
-                //Console.WriteLine(aCost);
+                // Algorithm working if the cost is always decreasing
+                Console.WriteLine(aCost);
             }
 
-            //Console.WriteLine(thetaSeries);
+            Console.WriteLine(thetaSeries);
+
+            // Calculate slope and intercept using least square estimates
+            double[] theta = LeastSquareEstimates(X, y);
+            foreach (var item in theta)
+            {
+                Console.WriteLine(item);
+            }
 
             // Visualizing Data and regression line
             double[] xArray = X.Column(1).ToArray();
@@ -40,31 +48,6 @@ namespace LinearRegression
             double[] thetaArray = Deedle.Math.Series.toVector(thetaSeries).ToArray();
 
             PlotSeries(xArray, yArray, thetaArray);
-        }
-
-        private static double[] GradientDescent(Matrix<double> X, Vector<double> y, ref Series<int, double> thetaSeries, double learningRate, int iterations)
-        {
-            int numberOfExamples = X.RowCount;
-            double[] costHistory = new double[iterations];
-            for (int i = 0; i < iterations; i++)
-            {
-                // Update theta
-                // theta = theta - ((alpha/m) * sum(((X*theta)-y) .* X))';
-                var dotProduct = Deedle.Math.Matrix.dot(X, thetaSeries); // X*theta
-                var dotProductMinusY = (dotProduct - y).ToRowMatrix(); // (X*theta)-y
-                var dotProductMinusYMultiplyX = dotProductMinusY.Multiply(X); // ((X*theta)-y) .* X)
-                var dotProductMinusYMultiplyXSum = dotProductMinusYMultiplyX.ColumnSums(); // sum(((X*theta)-y) .* X))
-                var dotProductMinusYMultiplyXSumLr = dotProductMinusYMultiplyXSum.Multiply(learningRate / numberOfExamples); // (alpha/m) * sum(((X*theta)-y) .* X)
-
-                var thetaVector = Deedle.Math.Series.toVector(thetaSeries);
-                var newThetaVector = thetaVector - dotProductMinusYMultiplyXSumLr; // theta - ((alpha/m) * sum(((X*theta)-y) .* X))
-                thetaSeries = Deedle.Math.Series.ofVector(Enumerable.Range(0, dotProductMinusYMultiplyXSumLr.Count), newThetaVector);
-
-                // Save cost history
-                costHistory[i] = ComputeCost(X, y, thetaSeries);
-            }
-
-            return costHistory;
         }
 
         public static (Matrix<double> X, Vector<double> y) PrepareInputData(string csvPath)
@@ -97,6 +80,46 @@ namespace LinearRegression
             var dotproductMinusYPower2SumDivided2M = dotproductMinusYPower2Sum * (1.0 / (2.0 * X.RowCount)); // sum(((X*theta)-y).^2)*(1/(2*m))
 
             return dotproductMinusYPower2SumDivided2M;
+        }
+
+        private static double[] GradientDescent(Matrix<double> X, Vector<double> y, ref Series<int, double> thetaSeries, double learningRate, int iterations)
+        {
+            int numberOfExamples = X.RowCount;
+            double[] costHistory = new double[iterations];
+            for (int i = 0; i < iterations; i++)
+            {
+                // Update theta
+                // theta = theta - ((learning_rate/m) * sum(((X*theta)-y) .* X))';
+                var dotProduct = Deedle.Math.Matrix.dot(X, thetaSeries); // X*theta
+                var dotProductMinusY = (dotProduct - y).ToRowMatrix(); // (X*theta)-y
+                var dotProductMinusYMultiplyX = dotProductMinusY.Multiply(X); // ((X*theta)-y) .* X)
+                var dotProductMinusYMultiplyXSum = dotProductMinusYMultiplyX.ColumnSums(); // sum(((X*theta)-y) .* X))
+                var dotProductMinusYMultiplyXSumLr = dotProductMinusYMultiplyXSum.Multiply(learningRate / numberOfExamples); // (alpha/m) * sum(((X*theta)-y) .* X)
+
+                var thetaVector = Deedle.Math.Series.toVector(thetaSeries);
+                var newThetaVector = thetaVector - dotProductMinusYMultiplyXSumLr; // theta - ((alpha/m) * sum(((X*theta)-y) .* X))
+                thetaSeries = Deedle.Math.Series.ofVector(Enumerable.Range(0, dotProductMinusYMultiplyXSumLr.Count), newThetaVector);
+
+                // Save cost history
+                costHistory[i] = ComputeCost(X, y, thetaSeries);
+            }
+
+            return costHistory;
+        }
+
+        private static double[] LeastSquareEstimates(Matrix<double> X, Vector<double> y)
+        {
+            Vector<double> x = X.Column(1);
+            double xMean = x.Sum() / x.Count;
+            double yMean = y.Sum() / y.Count;
+
+            // slope = sum((x-x_mean)*(y-y_mean))/sum(x-x_mean).^2
+            var slope = (x - xMean).PointwiseMultiply(y - xMean).Sum() / (x - xMean).PointwisePower(2).Sum();
+            
+            // intercept = y_mean - theta1*x_mean
+            var intercept = yMean - slope * xMean;
+
+            return new double[] { slope, intercept };
         }
 
         public static void PlotSeries(double[] x, double[] y, double[] theta)
