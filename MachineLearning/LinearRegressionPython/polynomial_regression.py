@@ -16,7 +16,7 @@ def normal_equation(x, y):
 
     return thetas
 
-data = pd.read_csv('ex1data1.txt', names=['X', 'Y'])
+data = pd.read_csv('./data/ex1data1.txt', names=['X', 'Y'])
 x = data.iloc[:,0]
 y = data.iloc[:,1]
 
