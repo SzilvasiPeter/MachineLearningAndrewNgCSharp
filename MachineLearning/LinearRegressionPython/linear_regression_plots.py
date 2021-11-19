@@ -57,15 +57,21 @@ def calculate_3dcost(x, y):
     bs = np.linspace(-3.6303-2, -3.6303+2, 10)
 
     M, B = np.meshgrid(ms, bs)
-    zs = np.array([error(mp, bp, points) 
+    zs = np.array([error_LSE(mp, bp, points) 
                 for mp, bp in zip(np.ravel(M), np.ravel(B))])
     Z = zs.reshape(M.shape)
     return M,B,Z
 
-def error(m, b, points):
+def error_LSE(m, b, points):
     totalError = 0
     for i in range(0, len(points)):
         totalError += ((m * points[i].x + b) - points[i].y) ** 2
+    return totalError / float(len(points))
+
+def error_LAE(m, b, points):
+    totalError = 0
+    for i in range(0, len(points)):
+        totalError += abs((m * points[i].x + b) - points[i].y)
     return totalError / float(len(points))
 
 data = pd.read_csv('./data/ex1data1.txt', names=['X', 'Y'])
