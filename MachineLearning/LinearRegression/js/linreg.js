@@ -22,5 +22,5 @@ const ordinaryLeastSquare = (X, y) =>{
   console.log('theta0: ' + theta0)
 }
 
-var X = [1, 2, 3, 4, 5], y = [1, 3, 5, 7, 9];
+var X = [1, 2, 3, 4], y = [5, 7, 9, 12];
 ordinaryLeastSquare(X, y);
