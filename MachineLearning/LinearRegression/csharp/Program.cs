@@ -112,10 +112,8 @@ namespace csharp
 
             for (int i = 0; i < iterations; i++)
             {
-                double[] h_x = x.Select(item => theta2*item + theta1).ToArray();
-                
-                double theta2Derivative = (1.0/x.Length) * h_x.Zip(y, (h_x, y) => h_x - y).Zip(x, (z, x) => z * x).Sum();
-                double theta1Derivative = (1.0/x.Length) * h_x.Zip(y, (h_x, y) => h_x - y).Sum();
+                double theta1Derivative = (1.0 / x.Length) * x.Zip(y, (x, y) => (theta2 * x + theta1) - y).Sum();
+                double theta2Derivative = (1.0 / x.Length) * x.Zip(y, (x, y) => ((theta2 * x + theta1) - y) * x).Sum();
                 
                 theta2 = theta2 - learningRate * theta2Derivative;
                 theta1 = theta1 - learningRate * theta1Derivative;
